@@ -97,7 +97,7 @@ const PROFILES = [
 const GOAL = 24;
 const PLAT_ICONS = {Instagram:'📸',TikTok:'🎵',Shorts:'▶️'};
 
-let supabase = null;
+let supabaseClient = null;
 let currentWeek = getCurrentWeek();
 let checksData = {};
 let syncing = false;
@@ -133,7 +133,7 @@ function saveConfig(){
 
 function initSupabase(url, key){
   try{
-    supabase = window.supabase.createClient(url, key);
+    supabaseClient = window.supabase.createClient(url, key);
     document.getElementById('config-screen').style.display='none';
     document.getElementById('app').style.display='block';
     loadData();
