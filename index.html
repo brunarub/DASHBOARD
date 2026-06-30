@@ -88,14 +88,16 @@
 </div>
 
 <script>
+const DEFAULT_GOAL = 21;
 const PROFILES = [
-  {id:'brasileiras', name:'Brasileiras', platforms:['Instagram','TikTok','Shorts']},
-  {id:'brfem', name:'BR Feminino', platforms:['Instagram','TikTok','Shorts']},
-  {id:'copa', name:'Copa do Brasil', platforms:['Instagram','TikTok','Shorts']},
-  {id:'selfem', name:'Seleção Feminina', platforms:['Instagram']},
+  {id:'brasileiras', name:'Brasileiras', platforms:['Instagram','TikTok','Shorts'], goal:21},
+  {id:'brfem', name:'BR Feminino', platforms:['Instagram','TikTok','Shorts'], goal:21},
+  {id:'copa', name:'Copa do Brasil', platforms:['Instagram','TikTok','Shorts'], goal:21},
+  {id:'selfem', name:'Seleção Feminina', platforms:['Instagram'], goal:14},
 ];
-const GOAL = 24;
 const PLAT_ICONS = {Instagram:'📸',TikTok:'🎵',Shorts:'▶️'};
+
+function profileGoal(p){ return p.goal || DEFAULT_GOAL; }
 
 // --- Week logic (Fri–Thu cycles) ---
 const EPOCH_FRIDAY = new Date(2025, 0, 3); // 2025-01-03 local time
@@ -272,7 +274,8 @@ function render(){
   let totalDone=0, totalGoal=0;
 
   PROFILES.forEach(p=>{
-    totalGoal += p.platforms.length * GOAL;
+    const goal = profileGoal(p);
+    totalGoal += p.platforms.length * goal;
     p.platforms.forEach((_,i)=>{
       totalDone += getChecks(p.id,i,currentWeek);
     });
@@ -286,14 +289,15 @@ function render(){
     <div class="sum-card"><div class="val">${PROFILES.length}</div><div class="lbl">perfis ativos</div></div>`;
 
   document.getElementById('grid').innerHTML = PROFILES.map(p=>{
+    const goalPerPlat = profileGoal(p);
     const done = p.platforms.reduce((s,_,i)=>s+getChecks(p.id,i,currentWeek),0);
-    const goal = p.platforms.length*GOAL;
+    const goal = p.platforms.length*goalPerPlat;
     const bc = done>=goal?'badge-ok':done>0?'badge-warn':'badge-no';
     const bt = done>=goal?'✓ Meta atingida':done>0?`${done}/${goal}`:'Pendente';
 
     const plats = p.platforms.map((pl,pi)=>{
       const cnt = getChecks(p.id,pi,currentWeek);
-      const cks = Array.from({length:GOAL},(_,ci)=>{
+      const cks = Array.from({length:goalPerPlat},(_,ci)=>{
         const chk = ci<cnt;
         return `<div class="ck${chk?' done':''}" onclick="handleClick('${p.id}',${pi},${ci})" title="Post ${ci+1}">${chk?'✓':''}</div>`;
       }).join('');
@@ -302,7 +306,7 @@ function render(){
         <div class="plat-icon">${PLAT_ICONS[pl]||'📄'}</div>
         <div class="plat-name">${pl}</div>
         <div class="checks">${cks}</div>
-        <div class="ck-count">${cnt}/${GOAL}</div>
+        <div class="ck-count">${cnt}/${goalPerPlat}</div>
       </div>`;
     }).join('');
 
